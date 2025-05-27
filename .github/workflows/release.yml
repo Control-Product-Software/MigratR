@@ -18,14 +18,19 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build project
         run: dotnet build -c Release --no-restore
 
-      - name: Pack NuGet package
-        run: dotnet pack -c Release --no-build -o ./nupkg
+
+      - name: Pack NuGet package with tag version
+        run: dotnet pack -c Release -p:PackageVersion=${{ env.VERSION }} -o ./nupkg
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
